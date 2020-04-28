@@ -34,22 +34,36 @@ public class FiveInARowGame {
     /**
      * Progresses the game by one move
      * @param position the point the next player will play
-     * @return weather or not the move was successful
      */
-    boolean nextTurn(CellScore position) {
+    void nextTurn(CellScore position) {
         boolean pointIsInBoard = (position.getX() >= 0) && (position.getX() < board.length) && (position.getY() >= 0)
                 && (position.getY() < board.length);
 
         if (pointIsInBoard && board[position.getY()][position.getX()] == 0) {
             board[position.getY()][position.getX()] = turn;
-            numMoves++;
-            over = checkGameOver(board);
-            turn = (turn == 1) ? 2 : 1;
             availablePositions.remove(position);
             gameHistory.add(position.getPoint());
-            return true;
+            numMoves++;
+            turn = (turn == 1) ? 2 : 1;
+            over = checkGameOver();
         }
-        return false;
+    }
+
+    FiveInARowGame setPosition(Point position, int player) {
+        boolean positionIsValid = position.x >= 0 && position.x < board.length && position.y >= 0 && position.y < board.length;
+        if (positionIsValid) {
+            board[position.y][position.x] = player;
+            if (player != 0) {
+                gameHistory.add(position);
+                numMoves++;
+                turn = (turn == 1) ? 2 : 1;
+            } else {
+                gameHistory.remove(position);
+                numMoves--;
+                turn = (turn == 1) ? 2 : 1;
+            }
+        }
+        return this;
     }
 
     /**
@@ -82,11 +96,10 @@ public class FiveInARowGame {
 
     /**
      * Checks if 5 in a row has been found
-     * @param board the game board.
      * @return 0 if no player won. 1 for player 1, 2 for player 2.
      * //TODO: Make -1 = tie
      */
-    int checkGameOver(int[][] board) {
+    int checkGameOver() {
         for (Point point : gameHistory) {
             if (countDirection(point, 1, 0, board) == 5) {
                 return board[point.y][point.x];
@@ -97,6 +110,9 @@ public class FiveInARowGame {
             } else if (countDirection(point, 1, 1, board) == 5) {
                 return board[point.y][point.x];
             }
+        }
+        if (availablePositions.size() == 0) {
+            return -1;
         }
         return 0;
     }
@@ -129,19 +145,12 @@ public class FiveInARowGame {
         System.out.println("-".repeat(board.length * 4) + "----");
     }
 
-    FiveInARowGame setPosition(Point position, int player) {
-        boolean positionIsValid = position.x >= 0 && position.x < board.length && position.y >= 0 && position.y < board.length;
-        if (positionIsValid) {
-            board[position.y][position.x] = player;
-            if (player != 0) {
-                gameHistory.add(position);
-                over = checkGameOver(board);
-            } else {
-                gameHistory.remove(position);
-            }
+    void consecutiveTurns(Point[] positions) {
+        for (Point position : positions) {
+            nextTurn(new CellScore(position, position.y * board.length + position.x));
         }
-        return this;
     }
+
 
     TreeSet<CellScore> getAvailablePositions() {
         return availablePositions;

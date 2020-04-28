@@ -9,10 +9,11 @@ public class FiveInARowSolver {
     private static final TreeSet<CellScore> usedPositions = new TreeSet<>(Comparator.comparingInt(CellScore::getEvaluation));
 
     static CellScore miniMax(FiveInARowGame game, int depth, int alpha, int beta, Boolean maximizingPlayer) {
-        if (depth == 0 || game.isOver() != 0) {
-            return new CellScore(new Point(), evaluation(game));
+        int overScore = game.checkGameOver();
+        if (depth == 0 || overScore != 0) {
+            return new CellScore(new Point(), evaluation(game, overScore));
         }
-        Point bestPoint = new Point();
+        Point bestPoint = game.getAvailablePositions().first().getPoint();
 
         if (maximizingPlayer) {
             int maxEval = Integer.MIN_VALUE;
@@ -59,12 +60,14 @@ public class FiveInARowSolver {
         }
     }
 
-    static int evaluation(FiveInARowGame game) {
+    static int evaluation(FiveInARowGame game, int overScore) {
 
-        if (game.isOver() == 1) {
+        if (overScore == 1) {
             return Integer.MAX_VALUE - game.getMove();
-        } else if (game.isOver() == 2) {
+        } else if (overScore == 2) {
             return Integer.MIN_VALUE + game.getMove();
+        } else if (overScore == -1) {
+            return 0;
         }
 
         // Count my chain length
@@ -79,53 +82,54 @@ public class FiveInARowSolver {
     static int countOpenChainLength(FiveInARowGame game, int searchNum) {
 
         int chainLength = 0;
+        int[][] board = game.getBoard();
 
         for (Point point : game.getGameHistory()) {
-            if (game.getBoard()[point.y][point.x] != searchNum) {
+            if (board[point.y][point.x] != searchNum) {
                 continue;
             }
             boolean isTopRow = point.y == 0;
             boolean isFistColumn = point.x == 0;
-            boolean isLastColumn = point.x == game.getBoard().length - 1;
+            boolean isLastColumn = point.x == board.length - 1;
 
             // Down Left
-            if (isTopRow || isLastColumn || game.getBoard()[point.y - 1][point.x + 1] != searchNum) {
-                int possibleChainLength = FiveInARowGame.countDirection(point, -1, 1, game.getBoard());
+            if (isTopRow || isLastColumn || board[point.y - 1][point.x + 1] != searchNum) {
+                int possibleChainLength = FiveInARowGame.countDirection(point, -1, 1, board);
 
-                boolean isOpenTopRight = !isTopRow && !isLastColumn && game.getBoard()[point.y - 1][point.x + 1] == 0;
+                boolean isOpenTopRight = !isTopRow && !isLastColumn && board[point.y - 1][point.x + 1] == 0;
                 boolean isOpenBottomLeft = (point.x - possibleChainLength) >= 0 &&
-                        (point.y + possibleChainLength) < game.getBoard().length &&
-                        game.getBoard()[point.y + possibleChainLength][point.x - possibleChainLength] == 0;
+                        (point.y + possibleChainLength) < board.length &&
+                        board[point.y + possibleChainLength][point.x - possibleChainLength] == 0;
 
                 chainLength += getChainLength(possibleChainLength, isOpenTopRight, isOpenBottomLeft);
             }
             // Down
-            if (isTopRow || game.getBoard()[point.y - 1][point.x] != searchNum) {
-                int possibleChainLength = FiveInARowGame.countDirection(point, 0, 1, game.getBoard());
+            if (isTopRow || board[point.y - 1][point.x] != searchNum) {
+                int possibleChainLength = FiveInARowGame.countDirection(point, 0, 1, board);
 
-                boolean isOpenTop = !isTopRow && game.getBoard()[point.y - 1][point.x] == 0;
-                boolean isOpenBottom = (point.y + possibleChainLength) < game.getBoard().length &&
-                        game.getBoard()[point.y + possibleChainLength][point.x] == 0;
+                boolean isOpenTop = !isTopRow && board[point.y - 1][point.x] == 0;
+                boolean isOpenBottom = (point.y + possibleChainLength) < board.length &&
+                        board[point.y + possibleChainLength][point.x] == 0;
 
                 chainLength += getChainLength(possibleChainLength, isOpenTop, isOpenBottom);
             }
             // Down Right
-            if (isTopRow || isFistColumn || game.getBoard()[point.y - 1][point.x - 1] != searchNum) {
-                int possibleChainLength = FiveInARowGame.countDirection(point, 1, 1, game.getBoard());
+            if (isTopRow || isFistColumn || board[point.y - 1][point.x - 1] != searchNum) {
+                int possibleChainLength = FiveInARowGame.countDirection(point, 1, 1, board);
 
-                boolean isOpenTopLeft = !isFistColumn && !isTopRow && game.getBoard()[point.y - 1][point.x - 1] == 0;
-                boolean isOpenBottomRight = (point.x + possibleChainLength) < game.getBoard().length &&
-                        (point.y + possibleChainLength) < game.getBoard().length &&
-                        game.getBoard()[point.y + possibleChainLength][point.x + possibleChainLength] == 0;
+                boolean isOpenTopLeft = !isFistColumn && !isTopRow && board[point.y - 1][point.x - 1] == 0;
+                boolean isOpenBottomRight = (point.x + possibleChainLength) < board.length &&
+                        (point.y + possibleChainLength) < board.length &&
+                        board[point.y + possibleChainLength][point.x + possibleChainLength] == 0;
                 chainLength += getChainLength(possibleChainLength, isOpenBottomRight, isOpenTopLeft);
             }
             // Right
-            if (isFistColumn || game.getBoard()[point.y][point.x - 1] != searchNum) {
-                int possibleChainLength = FiveInARowGame.countDirection(point, 1, 0, game.getBoard());
+            if (isFistColumn || board[point.y][point.x - 1] != searchNum) {
+                int possibleChainLength = FiveInARowGame.countDirection(point, 1, 0, board);
 
-                boolean isOpenLeft = !isFistColumn && game.getBoard()[point.y][point.x - 1] == 0;
-                boolean isOpenRight = (point.x + possibleChainLength) < game.getBoard().length &&
-                        game.getBoard()[point.y][point.x + possibleChainLength] == 0;
+                boolean isOpenLeft = !isFistColumn && board[point.y][point.x - 1] == 0;
+                boolean isOpenRight = (point.x + possibleChainLength) < board.length &&
+                        board[point.y][point.x + possibleChainLength] == 0;
                 chainLength += getChainLength(possibleChainLength, isOpenLeft, isOpenRight);
             }
         }
