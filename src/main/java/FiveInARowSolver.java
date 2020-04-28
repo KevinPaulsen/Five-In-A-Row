@@ -1,12 +1,12 @@
 package main.java;
 
-import java.awt.*;
+import java.awt.Point;
 import java.util.Comparator;
 import java.util.TreeSet;
 
 public class FiveInARowSolver {
 
-    //private TreeSet<CellScore> treeSet = new TreeSet<>(Comparator.comparingInt(CellScore::getScore));
+    private static final TreeSet<CellScore> usedPositions = new TreeSet<>(Comparator.comparingInt(CellScore::getEvaluation));
 
     static CellScore miniMax(FiveInARowGame game, int depth, int alpha, int beta, Boolean maximizingPlayer) {
         if (depth == 0 || game.isOver() != 0) {
@@ -16,12 +16,18 @@ public class FiveInARowSolver {
 
         if (maximizingPlayer) {
             int maxEval = Integer.MIN_VALUE;
-            for (Point p : game.getPositions()) {
-                int eval = miniMax(game.setPosition(p, 1), depth - 1, alpha, beta, false).getEvaluation();
-                game.setPosition(p, 0);
+            for (CellScore cellScore : game.getAvailablePositions()) {
+                if (usedPositions.contains(cellScore)) {
+                    continue;
+                }
+                usedPositions.add(cellScore);
+                int eval = miniMax(game.setPosition(cellScore.getPoint(), 1), depth - 1, alpha, beta, false).getEvaluation();
+                usedPositions.remove(cellScore);
+                game.setPosition(cellScore.getPoint(), 0);
+
                 if (maxEval < eval) {
                     maxEval = eval;
-                    bestPoint = p;
+                    bestPoint = cellScore.getPoint();
                 }
                 alpha = Math.max(eval, alpha);
                 if (beta <= alpha) {
@@ -31,12 +37,18 @@ public class FiveInARowSolver {
             return new CellScore(bestPoint, maxEval);
         } else {
             int minEval = Integer.MAX_VALUE;
-            for (Point p : game.getPositions()) {
-                int eval = miniMax(game.setPosition(p, 2), depth - 1, alpha, beta, true).getEvaluation();
-                game.setPosition(p, 0);
+            for (CellScore cellScore : game.getAvailablePositions()) {
+                if (usedPositions.contains(cellScore)) {
+                    continue;
+                }
+                usedPositions.add(cellScore);
+                int eval = miniMax(game.setPosition(cellScore.getPoint(), 2), depth - 1, alpha, beta, true).getEvaluation();
+                usedPositions.remove(cellScore);
+                game.setPosition(cellScore.getPoint(), 0);
+
                 if (minEval > eval) {
                     minEval = eval;
-                    bestPoint = p;
+                    bestPoint = cellScore.getPoint();
                 }
                 beta = Math.min(eval, beta);
                 if (beta <= alpha) {

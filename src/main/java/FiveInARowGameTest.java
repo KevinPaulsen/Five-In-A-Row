@@ -1,12 +1,15 @@
 package main.java;
 
 
+import org.testng.annotations.Test;
+
 import java.awt.Point;
+import java.util.ArrayList;
 
 import static org.testng.Assert.*;
 
 public class FiveInARowGameTest {
-    int[][] board = new int[][] {
+    private final int[][] board = new int[][] {
             {1, 0, 2, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 0, 0, 1, 2, 1, 1, 0, 2, 1},
             {1, 0, 2, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 0, 0, 1, 2, 1, 1, 0, 2, 1},
             {1, 0, 2, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 0, 0, 1, 2, 1, 1, 0, 2, 1},
@@ -33,6 +36,30 @@ public class FiveInARowGameTest {
             {1, 0, 2, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 0, 0, 1, 2, 1, 1, 0, 2, 1},
             {1, 0, 2, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 0, 0, 1, 2, 1, 1, 0, 2, 1}
         };
+    ArrayList<Point> history2 = new ArrayList<>();
+    private final int[][] board2 = new int[][] {
+            {1, 1, 1, 1, 1, 0 ,0, 0, 0},
+            {0, 0, 0, 0, 0, 0 ,0, 0, 0},
+            {0, 0, 0, 0, 0, 0 ,0, 0, 0},
+            {0, 0, 0, 0, 0, 0 ,0, 0, 0},
+            {0, 0, 0, 0, 0, 0 ,0, 0, 0},
+            {0, 0, 0, 0, 0, 0 ,0, 0, 0},
+            {0, 0, 0, 0, 0, 0 ,0, 0, 0},
+            {0, 0, 0, 0, 0, 0 ,0, 0, 0},
+            {0, 0, 0, 0, 0, 0 ,0, 0, 0}
+    };
+    ArrayList<Point> history3 = new ArrayList<>();
+    private final int[][] board3 = new int[][] {
+            {0, 0, 0, 0, 0, 0 ,0, 0, 0},
+            {0, 0, 0, 0, 0, 0 ,0, 0, 0},
+            {0, 0, 0, 0, 0, 0 ,0, 0, 0},
+            {0, 0, 0, 0, 0, 0 ,0, 0, 0},
+            {0, 0, 0, 0, 0, 0 ,0, 0, 2},
+            {0, 0, 0, 0, 0, 0 ,0, 2, 0},
+            {0, 0, 0, 0, 0, 0 ,2, 0, 0},
+            {0, 0, 0, 0, 0, 2 ,0, 0, 0},
+            {0, 0, 0, 0, 2, 0 ,0, 0, 0}
+    };
 
     @org.testng.annotations.Test
     public void testCountDirection() {
@@ -40,5 +67,23 @@ public class FiveInARowGameTest {
         final Point point = new Point(5, 2);
         int amount = FiveInARowGame.countDirection(point, 1, 1, board);
         assertEquals(amount, 9, "Expected there to be 7 in a row!");
+    }
+
+    //TODO: Fix this test.
+    @Test
+    public void testCheckGameOver() {
+        history2.add(new Point(0, 0));
+        history2.add(new Point(1, 0));
+        history2.add(new Point(2, 0));
+        history2.add(new Point(3, 0));
+        history2.add(new Point(4, 0));
+        history2.add(new Point(4, 8));
+        history3.add(new Point(5, 7));
+        history3.add(new Point(6, 6));
+        history3.add(new Point(7, 5));
+        history3.add(new Point(8, 4));
+
+        //assertEquals(over1, 1, "Expected there to be Player 1 winning");
+        //assertEquals(over2, 2, "Expected there to be Player 2 winning");
     }
 }
