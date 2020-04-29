@@ -68,10 +68,10 @@ public class Main {
 
     private static void printScreen(FiveInARowGame game) {
         game.printBoard();
-        //System.out.println("Player " + 1 + " has: " + FiveInARowSolver.countOpenChainLength(game, 1) + " in a row");
-        //System.out.println("Player " + 2 + " has: " + FiveInARowSolver.countOpenChainLength(game, 2) + " in a row");
+        System.out.println("Player " + 1 + " has a score of: " + FiveInARowSolver.countOpenChainLength(game, 1));
+        System.out.println("Player " + 2 + " has a score of: " + FiveInARowSolver.countOpenChainLength(game, 2));
         System.out.println("Score: " + score);
-        //System.out.println("Move:  " + game.getMove());
+        System.out.println("Move:  " + game.getMove());
         if (game.isOver() > 0) {
             System.out.printf("Player %d Wins!", game.isOver());
         } else if (game.isOver() == -1) {

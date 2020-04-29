@@ -10,13 +10,9 @@ public class FiveInARowSolver {
     static ArrayList<CellScore> updatedAvailablePositions;
     private static int maxDepth = -1;
 
-    private static int numPruned = 0;
-    private static int numOperations = 0;
-
     static CellScore miniMax(FiveInARowGame game, int depth, int alpha, int beta, Boolean maximizingPlayer) {
         int overScore = game.checkGameOver();
         if (depth == 0 || overScore != 0) {
-            numOperations++;
             return new CellScore(new Point(), evaluation(game, overScore));
         }
         Point bestPoint = game.getAvailablePositions().get(0).getPoint();
@@ -56,7 +52,6 @@ public class FiveInARowSolver {
                 maxDepth = -1;
                 updatedAvailablePositions.sort(Comparator.comparingInt(CellScore::getEvaluation));
                 game.setAvailablePositions(updatedAvailablePositions);
-                System.out.println(numOperations);
             }
             return new CellScore(bestPoint, maxEval);
         } else {
@@ -87,7 +82,6 @@ public class FiveInARowSolver {
                 maxDepth = -1;
                 updatedAvailablePositions.sort(Comparator.comparingInt(CellScore::getEvaluation));
                 game.setAvailablePositions(updatedAvailablePositions);
-                System.out.println(numOperations);
             }
             return new CellScore(bestPoint, minEval);
         }
