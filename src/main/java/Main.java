@@ -1,13 +1,7 @@
 package main.java;
 
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
+import java.awt.Point;
 import java.util.Scanner;
-import java.util.TreeMap;
-import java.util.TreeSet;
 
 public class Main {
 
@@ -18,20 +12,6 @@ public class Main {
     private static final boolean HUMAN_FIRST_MOVE = false;
 
     public static void main(String[] args) {
-
-        /*ArrayList<CellScore> list = new ArrayList<>(Arrays.asList(
-                new CellScore(new Point(0, 0), 5),
-                new CellScore(new Point(1, 0), 5),
-                new CellScore(new Point(2, 0), 6),
-                new CellScore(new Point(3, 0), 5),
-                new CellScore(new Point(4, 0), 5),
-                new CellScore(new Point(5, 0), 5),
-                new CellScore(new Point(6, 0), -1),
-                new CellScore(new Point(7, 0), 5)
-        ));
-        System.out.println(list.toString());
-        list.sort(Comparator.comparingInt(CellScore::getEvaluation));
-        System.out.println(list.toString());//*/
 
         FiveInARowGame game = new FiveInARowGame();
 
