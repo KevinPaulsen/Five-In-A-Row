@@ -1,7 +1,13 @@
 package main.java;
 
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Scanner;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 public class Main {
 
@@ -9,36 +15,25 @@ public class Main {
     private static final int depth2 = 5;
     private static int score = 0;
     private static final boolean MANUAL_MODE = false;
-    private static final boolean HUMAN_FIRST_MOVE = true;
+    private static final boolean HUMAN_FIRST_MOVE = false;
 
     public static void main(String[] args) {
-        FiveInARowGame game = new FiveInARowGame();
 
-        /*Point[] initialMoves = {
-                new Point(4, 0),
-                new Point(3, 1),
-                new Point(1, 1),
-                new Point(4, 1),
-                new Point(2, 1),
-                new Point(7, 1),
-                new Point(1, 2),
-                new Point(3, 2),
-                new Point(2, 2),
-                new Point(4, 2),
-                new Point(2, 3),
-                new Point(5, 2),
-                new Point(3, 3),
-                new Point(4, 3),
-                new Point(5, 4),
-                new Point(5, 3),
-                new Point(6, 4),
-                new Point(2, 4),
-                new Point(2, 5),
-                new Point(3, 4),
-                new Point(4, 5),
-                new Point(4, 4),
-        };
-        game.consecutiveTurns(initialMoves);//*/
+        /*ArrayList<CellScore> list = new ArrayList<>(Arrays.asList(
+                new CellScore(new Point(0, 0), 5),
+                new CellScore(new Point(1, 0), 5),
+                new CellScore(new Point(2, 0), 6),
+                new CellScore(new Point(3, 0), 5),
+                new CellScore(new Point(4, 0), 5),
+                new CellScore(new Point(5, 0), 5),
+                new CellScore(new Point(6, 0), -1),
+                new CellScore(new Point(7, 0), 5)
+        ));
+        System.out.println(list.toString());
+        list.sort(Comparator.comparingInt(CellScore::getEvaluation));
+        System.out.println(list.toString());//*/
+
+        FiveInARowGame game = new FiveInARowGame();
 
         while (game.isOver() == 0) {
             if (MANUAL_MODE) {
@@ -80,23 +75,23 @@ public class Main {
             System.out.print("Y: ");
             y = scanner.nextInt();
         }
-        game.nextTurn(new CellScore(new Point(x - 1, y - 1), (y - 1) * game.getBoard().length + (x - 1)));//*/
+        game.nextTurn(new CellScore(new Point(x - 1, y - 1), -1));//*/
     }
 
     private static void computerMove(FiveInARowGame game, Boolean isFirst, int depth) {
-        Point bestMove = getBestMove(game, isFirst, depth);
+        CellScore cellScore = getBestMove(game, isFirst, depth);
+        score = cellScore.getEvaluation();
         if (game.isOver() == 0) {
-            game.nextTurn(new CellScore(new Point(bestMove.x, bestMove.y),
-                    bestMove.y * game.getBoard().length + bestMove.x));
+            game.nextTurn(new CellScore(cellScore.getPoint(), cellScore.getEvaluation()));
         }
     }
 
     private static void printScreen(FiveInARowGame game) {
         game.printBoard();
-        System.out.println("Player " + 1 + " has: " + FiveInARowSolver.countOpenChainLength(game, 1) + " in a row");
-        System.out.println("Player " + 2 + " has: " + FiveInARowSolver.countOpenChainLength(game, 2) + " in a row");
+        //System.out.println("Player " + 1 + " has: " + FiveInARowSolver.countOpenChainLength(game, 1) + " in a row");
+        //System.out.println("Player " + 2 + " has: " + FiveInARowSolver.countOpenChainLength(game, 2) + " in a row");
         System.out.println("Score: " + score);
-        System.out.println("Move:  " + game.getMove());
+        //System.out.println("Move:  " + game.getMove());
         if (game.isOver() > 0) {
             System.out.printf("Player %d Wins!", game.isOver());
         } else if (game.isOver() == -1) {
@@ -104,9 +99,7 @@ public class Main {
         }
     }
 
-    private static Point getBestMove(FiveInARowGame game, boolean isFirst, int depth) {
-        CellScore bestMove = FiveInARowSolver.miniMax(game, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, isFirst);
-        score = bestMove.getEvaluation();
-        return bestMove.getPoint();
+    private static CellScore getBestMove(FiveInARowGame game, boolean isFirst, int depth) {
+        return FiveInARowSolver.miniMax(game, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, isFirst);
     }
 }

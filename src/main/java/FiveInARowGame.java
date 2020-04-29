@@ -7,9 +7,10 @@ import java.util.TreeSet;
 
 public class FiveInARowGame {
 
-    private final TreeSet<CellScore> availablePositions = new TreeSet<>(Comparator.comparingInt(CellScore::getEvaluation));
+    private final int boardSize = 9;
+    private ArrayList<CellScore> availablePositions = new ArrayList<>();
     private final ArrayList<Point> gameHistory = new ArrayList<>();
-    private final int[][] board = new int[9][9];
+    private final int[][] board = new int[boardSize][boardSize];
     private int turn = 1; // 1 = player 1, 2 = player 2
     private int over = 0; // 0 = still playing, 1 = P1 wins, 2 = P2 wins.
     private int numMoves = 0; // Counts moves in game.
@@ -23,10 +24,10 @@ public class FiveInARowGame {
      * Creates new instance with empty Board
      */
     FiveInARowGame() {
-        for (int y = 0; y < board.length; y++) {
-            for (int x = 0; x < board.length; x++) {
+        for (int y = 0; y < boardSize; y++) {
+            for (int x = 0; x < boardSize; x++) {
                 board[y][x] = 0;
-                availablePositions.add(new CellScore(new Point(x, y), (y * board.length) + x));
+                availablePositions.add(new CellScore(new Point(x, y), 0));
             }
         }
     }
@@ -36,12 +37,21 @@ public class FiveInARowGame {
      * @param position the point the next player will play
      */
     void nextTurn(CellScore position) {
-        boolean pointIsInBoard = (position.getX() >= 0) && (position.getX() < board.length) && (position.getY() >= 0)
-                && (position.getY() < board.length);
+        boolean pointIsInBoard = (position.getX() >= 0) && (position.getX() < boardSize) && (position.getY() >= 0)
+                && (position.getY() < boardSize);
 
         if (pointIsInBoard && board[position.getY()][position.getX()] == 0) {
             board[position.getY()][position.getX()] = turn;
-            availablePositions.remove(position);
+            if (position.getEvaluation() == -1) {
+                for (int idx = 0; idx < availablePositions.size(); idx++) {
+                    if (availablePositions.get(idx).getPoint().equals(position.getPoint())) {
+                        availablePositions.remove(idx);
+                        break;
+                    }
+                }
+            } else {
+                availablePositions.remove(position);
+            }
             gameHistory.add(position.getPoint());
             numMoves++;
             turn = (turn == 1) ? 2 : 1;
@@ -50,18 +60,17 @@ public class FiveInARowGame {
     }
 
     FiveInARowGame setPosition(Point position, int player) {
-        boolean positionIsValid = position.x >= 0 && position.x < board.length && position.y >= 0 && position.y < board.length;
+        boolean positionIsValid = position.x >= 0 && position.x < boardSize && position.y >= 0 && position.y < boardSize;
         if (positionIsValid) {
             board[position.y][position.x] = player;
             if (player != 0) {
                 gameHistory.add(position);
                 numMoves++;
-                turn = (turn == 1) ? 2 : 1;
             } else {
                 gameHistory.remove(position);
                 numMoves--;
-                turn = (turn == 1) ? 2 : 1;
             }
+            turn = (turn == 1) ? 2 : 1;
         }
         return this;
     }
@@ -123,12 +132,12 @@ public class FiveInARowGame {
     void printBoard() {
         System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n");
         System.out.print("   |");
-        for (int i = 0; i < board.length; i++) {
+        for (int i = 0; i < boardSize; i++) {
             System.out.printf("%2d |", i + 1);
         }
         System.out.println();
-        for (int row = 0; row < board.length; row++) {
-            System.out.println("-".repeat(board.length * 4) + "----");
+        for (int row = 0; row < boardSize; row++) {
+            System.out.println("-".repeat(boardSize * 4) + "----");
             System.out.printf("%2d |", row + 1);
             StringBuilder printRow = new StringBuilder();
             for (int space : board[row]) {
@@ -142,22 +151,21 @@ public class FiveInARowGame {
             }
             System.out.println(printRow);
         }
-        System.out.println("-".repeat(board.length * 4) + "----");
+        System.out.println("-".repeat(boardSize * 4) + "----");
     }
 
     void consecutiveTurns(Point[] positions) {
         for (Point position : positions) {
-            nextTurn(new CellScore(position, position.y * board.length + position.x));
+            nextTurn(new CellScore(position, 0));
         }
     }
 
-
-    TreeSet<CellScore> getAvailablePositions() {
-        return availablePositions;
+    public void setAvailablePositions(ArrayList<CellScore> availablePositions) {
+        this.availablePositions = availablePositions;
     }
 
-    public int getTurn() {
-        return turn;
+    ArrayList<CellScore> getAvailablePositions() {
+        return availablePositions;
     }
 
     public int[][] getBoard() {

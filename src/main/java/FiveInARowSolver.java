@@ -1,23 +1,37 @@
 package main.java;
 
 import java.awt.Point;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.TreeSet;
 
 public class FiveInARowSolver {
 
-    private static final TreeSet<CellScore> usedPositions = new TreeSet<>(Comparator.comparingInt(CellScore::getEvaluation));
+    private static final ArrayList<CellScore> usedPositions = new ArrayList<>();
+    static ArrayList<CellScore> updatedAvailablePositions;
+    private static int maxDepth = -1;
+
+    private static int numPruned = 0;
+    private static int numOperations = 0;
 
     static CellScore miniMax(FiveInARowGame game, int depth, int alpha, int beta, Boolean maximizingPlayer) {
         int overScore = game.checkGameOver();
         if (depth == 0 || overScore != 0) {
+            numOperations++;
             return new CellScore(new Point(), evaluation(game, overScore));
         }
-        Point bestPoint = game.getAvailablePositions().first().getPoint();
+        Point bestPoint = game.getAvailablePositions().get(0).getPoint();
+
+        if (maxDepth == -1) {
+            maxDepth = depth;
+            updatedAvailablePositions = new ArrayList<>();
+            System.out.println(".".repeat(game.getAvailablePositions().size()));
+        }
 
         if (maximizingPlayer) {
             int maxEval = Integer.MIN_VALUE;
-            for (CellScore cellScore : game.getAvailablePositions()) {
+            for (int idx = game.getAvailablePositions().size() - 1; idx >= 0; idx--) {
+                CellScore cellScore = game.getAvailablePositions().get(idx);
                 if (usedPositions.contains(cellScore)) {
                     continue;
                 }
@@ -30,10 +44,20 @@ public class FiveInARowSolver {
                     maxEval = eval;
                     bestPoint = cellScore.getPoint();
                 }
+                if (depth == maxDepth) {
+                    updatedAvailablePositions.add(new CellScore(cellScore.getPoint(), eval));
+                    System.out.print(".");
+                }
                 alpha = Math.max(eval, alpha);
                 if (beta <= alpha) {
                     break;
                 }
+            }
+            if (depth == maxDepth) {
+                maxDepth = -1;
+                updatedAvailablePositions.sort(Comparator.comparingInt(CellScore::getEvaluation));
+                game.setAvailablePositions(updatedAvailablePositions);
+                System.out.println(numOperations);
             }
             return new CellScore(bestPoint, maxEval);
         } else {
@@ -51,10 +75,20 @@ public class FiveInARowSolver {
                     minEval = eval;
                     bestPoint = cellScore.getPoint();
                 }
+                if (depth == maxDepth) {
+                    updatedAvailablePositions.add(new CellScore(cellScore.getPoint(), eval));
+                    System.out.print(".");
+                }
                 beta = Math.min(eval, beta);
                 if (beta <= alpha) {
                     break;
                 }
+            }
+            if (depth == maxDepth) {
+                maxDepth = -1;
+                updatedAvailablePositions.sort(Comparator.comparingInt(CellScore::getEvaluation));
+                game.setAvailablePositions(updatedAvailablePositions);
+                System.out.println(numOperations);
             }
             return new CellScore(bestPoint, minEval);
         }
@@ -80,7 +114,6 @@ public class FiveInARowSolver {
     }
 
     static int countOpenChainLength(FiveInARowGame game, int searchNum) {
-
         int chainLength = 0;
         int[][] board = game.getBoard();
 
